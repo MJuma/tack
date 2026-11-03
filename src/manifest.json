@@ -1,0 +1,33 @@
+{
+    "manifest_version": 3,
+    "name": "Tack",
+    "version": "0.3.2",
+    "description": "A blazing-fast new tab page: one grid of the links you pin.",
+    "icons": {
+        "48": "icons/tack.svg",
+        "96": "icons/tack.svg"
+    },
+    "chrome_url_overrides": {
+        "newtab": "newtab.html"
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "type": "module"
+    },
+    "permissions": ["storage"],
+    "optional_permissions": ["topSites"],
+    "host_permissions": ["<all_urls>"],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'none'"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "tack@mjuma",
+            "strict_min_version": "140.0",
+            "update_url": "https://github.com/MJuma/tack/releases/latest/download/updates.json",
+            "data_collection_permissions": {
+                "required": ["none"]
+            }
+        }
+    }
+}

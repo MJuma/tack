@@ -1,0 +1,100 @@
+name: Release
+
+# Every push to master whose src/manifest.json version has no v<version> tag yet becomes a
+# release: tests and lint, then Mozilla signs the add-on (unlisted), and a GitHub Release gets the
+# signed tack.xpi plus updates.json. The manifest's update_url points at the latest release's
+# updates.json, so installed copies update themselves.
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check version
+        id: version
+        run: |
+          VERSION=$(jq -r .version src/manifest.json)
+          PACKAGE=$(jq -r .version package.json)
+          if [[ "$VERSION" != "$PACKAGE" ]]; then
+            echo "::error::src/manifest.json is $VERSION but package.json is $PACKAGE"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if git ls-remote --tags origin "refs/tags/v${VERSION}" | grep -q .; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "v${VERSION} is already released; nothing to do."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Releasing v${VERSION}."
+          fi
+
+      - uses: pnpm/action-setup@v5
+        if: steps.version.outputs.exists != 'true'
+
+      - uses: actions/setup-node@v5
+        if: steps.version.outputs.exists != 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install, test and lint
+        if: steps.version.outputs.exists != 'true'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm test
+          pnpm lint
+
+      - name: Sign with Mozilla (unlisted)
+        if: steps.version.outputs.exists != 'true'
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          # Stray whitespace in a secret makes AMO reject the token, so trim it.
+          export WEB_EXT_API_KEY="$(printf '%s' "$AMO_JWT_ISSUER" | tr -d '[:space:]')"
+          export WEB_EXT_API_SECRET="$(printf '%s' "$AMO_JWT_SECRET" | tr -d '[:space:]')"
+          if [[ -z "$WEB_EXT_API_KEY" || -z "$WEB_EXT_API_SECRET" ]]; then
+            echo "::error::Set the AMO_JWT_ISSUER and AMO_JWT_SECRET repository secrets."
+            exit 1
+          fi
+          case "$WEB_EXT_API_KEY" in
+            user:*) ;;
+            *) echo "::warning::AMO_JWT_ISSUER should look like user:NNNNN:NN; it may be swapped with the secret." ;;
+          esac
+          pnpm exec web-ext sign --source-dir src --channel unlisted --artifacts-dir dist
+          XPI=$(ls dist/*.xpi | head -1)
+          cp "$XPI" dist/tack.xpi
+
+      - name: Write updates.json
+        if: steps.version.outputs.exists != 'true'
+        run: |
+          V="${{ steps.version.outputs.version }}"
+          ID=$(jq -r .browser_specific_settings.gecko.id src/manifest.json)
+          HASH="sha256:$(sha256sum dist/tack.xpi | cut -d' ' -f1)"
+          LINK="https://github.com/${GITHUB_REPOSITORY}/releases/download/v${V}/tack.xpi"
+          jq -n --arg id "$ID" --arg v "$V" --arg link "$LINK" --arg hash "$HASH" \
+            '{addons: {($id): {updates: [{version: $v, update_link: $link, update_hash: $hash}]}}}' \
+            > dist/updates.json
+          cat dist/updates.json
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V="${{ steps.version.outputs.version }}"
+          gh release create "v${V}" dist/tack.xpi dist/updates.json \
+            --title "Tack v${V}" \
+            --generate-notes

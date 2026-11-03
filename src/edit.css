@@ -1,0 +1,452 @@
+/* Edit mode only; edit.js loads this on demand. */
+.editing #e {
+    visibility: hidden;
+}
+
+.editing #g {
+    padding-bottom: 96px;
+}
+
+.editing .t[data-id] {
+    cursor: grab;
+}
+
+.editing .t img {
+    pointer-events: none;
+}
+
+.editing .t.dragging,
+.editing .s.dragging {
+    opacity: 0.3;
+}
+
+.editing .s[data-n] {
+    cursor: grab;
+}
+
+/* Remove a box (top right) or a link inside it (on hover). */
+.x {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: light-dark(#0000000d, #ffffff17);
+    color: var(--muted);
+    font: 400 16px/1 system-ui;
+    cursor: pointer;
+}
+
+.x:hover,
+.x:focus-visible {
+    background: #e5484d;
+    color: #fff;
+}
+
+.sx {
+    display: none;
+    font-style: normal;
+}
+
+.list .s:hover .sx,
+.row .s:hover .sx {
+    display: grid;
+    place-items: center;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #e5484d;
+    color: #fff;
+    font: 600 11px/1 system-ui;
+}
+
+.list .s:hover .sx {
+    margin-right: -5px;
+}
+
+.row .s:hover .sx {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+}
+
+/* Add a link inside: a + after the others, or in place of the address on hover. */
+button.s.add {
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 1px dashed light-dark(#0000004d, #ffffff4d);
+    background: none;
+    color: var(--muted);
+    font: 500 14px/1 system-ui;
+    cursor: pointer;
+}
+
+.list button.s.add {
+    width: 28px;
+}
+
+button.s.add:hover,
+.add-in:hover {
+    border-color: AccentColor;
+    color: AccentColor;
+}
+
+.add-in {
+    position: relative;
+    z-index: 1;
+    display: none;
+    margin-top: 3px;
+    padding: 2px 9px;
+    border: 1px dashed light-dark(#0000004d, #ffffff4d);
+    border-radius: 999px;
+    background: none;
+    color: var(--muted);
+    font: 500 11.5px/1.35 -apple-system, system-ui, sans-serif;
+    cursor: pointer;
+}
+
+.editing .t:hover .u {
+    display: none;
+}
+
+.editing .t:hover .add-in {
+    display: block;
+}
+
+.t.new {
+    justify-content: center;
+    gap: 10px;
+    border: 1.5px dashed light-dark(#00000033, #ffffff33);
+    background: none;
+    box-shadow: none;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.t.new b {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: light-dark(#0000000a, #ffffff12);
+    font-size: 26px;
+    font-weight: 300;
+}
+
+.t.new:hover,
+.t.new:focus-visible {
+    border-color: AccentColor;
+    color: AccentColor;
+}
+
+/* Toolbar */
+.tack-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 12px;
+    background: light-dark(#fff, #1c1b22);
+    box-shadow: 0 0 0 1px light-dark(#0000001a, #ffffff1a), 0 6px 24px rgb(0 0 0 / 0.2);
+    translate: -50% 0;
+    white-space: nowrap;
+}
+
+.tip {
+    padding: 0 8px;
+    color: var(--muted);
+}
+
+.undo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 8px;
+    border-left: 1px solid light-dark(#0000001a, #ffffff1a);
+}
+
+.undo[hidden] {
+    display: none;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.toggle:hover {
+    background: light-dark(#0000000f, #ffffff17);
+}
+
+.toggle input {
+    margin: 0;
+    accent-color: AccentColor;
+}
+
+.tack-bar button,
+.tack-dialog button {
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: light-dark(#0000000f, #ffffff17);
+    color: inherit;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.tack-bar button:hover,
+.tack-dialog button:hover {
+    background: light-dark(#0000001a, #ffffff24);
+}
+
+.tack-bar button:disabled,
+.tack-dialog button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.tack-bar .primary,
+.tack-dialog .primary {
+    background: AccentColor;
+    color: AccentColorText;
+}
+
+.tack-dialog .danger {
+    color: #e5484d;
+}
+
+.tack-menu {
+    position: relative;
+}
+
+.tack-menu [role="menu"] {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    display: grid;
+    gap: 2px;
+    padding: 6px;
+    border-radius: 10px;
+    background: light-dark(#fff, #1c1b22);
+    box-shadow: 0 0 0 1px light-dark(#0000001a, #ffffff1a), 0 4px 24px rgb(0 0 0 / 0.2);
+}
+
+.tack-menu [role="menu"][hidden] {
+    display: none;
+}
+
+.tack-menu [role="menuitem"] {
+    background: none;
+    text-align: start;
+}
+
+/* The box dialog */
+.tack-dialog {
+    width: min(540px, 92vw);
+    box-sizing: border-box;
+    padding: 22px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--bg);
+    color: var(--fg);
+    box-shadow: 0 16px 60px rgb(0 0 0 / 0.35);
+}
+
+.tack-dialog::backdrop {
+    background: rgb(0 0 0 / 0.35);
+}
+
+.tack-dialog form {
+    display: grid;
+    gap: 18px;
+}
+
+.tack-dialog h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.tack-dialog .fields {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 10px;
+}
+
+.tack-dialog label {
+    display: grid;
+    gap: 5px;
+    font-weight: 600;
+}
+
+.tack-dialog input {
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid light-dark(#00000033, #ffffff2e);
+    border-radius: 8px;
+    background: light-dark(#fff, #1c1b22);
+    color: inherit;
+    font: 400 13.5px -apple-system, system-ui, sans-serif;
+}
+
+.tack-dialog input:focus {
+    border-color: transparent;
+    outline: 2px solid AccentColor;
+    outline-offset: -1px;
+}
+
+.tack-dialog h3 {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 13px;
+}
+
+.tack-dialog h3 small {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+.seg {
+    display: inline-flex;
+    gap: 2px;
+    margin-left: auto;
+    padding: 2px;
+    border-radius: 8px;
+    background: light-dark(#0000000d, #ffffff12);
+}
+
+.tack-dialog .seg button {
+    padding: 4px 11px;
+    border-radius: 6px;
+    background: none;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.tack-dialog .seg button[aria-pressed="true"] {
+    background: var(--box);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+    color: var(--fg);
+}
+
+.subl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 8px;
+    padding: 0;
+    list-style: none;
+}
+
+.subl li {
+    display: grid;
+    grid-template-columns: 12px 20px 1fr 1.6fr 28px;
+    align-items: center;
+    gap: 6px;
+}
+
+.subl li.dragging {
+    opacity: 0.4;
+}
+
+.grip {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1;
+    cursor: grab;
+    user-select: none;
+}
+
+.icon-note {
+    margin: -6px 0 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: light-dark(#fff4e5, #3d3020);
+    color: light-dark(#7a4a00, #f5c87a);
+    font-size: 12px;
+}
+
+.icon-note[hidden] {
+    display: none;
+}
+
+.subl .num {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: light-dark(#0000000f, #ffffff17);
+    color: var(--muted);
+    font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.subl .num img {
+    width: 16px;
+    height: 16px;
+}
+
+.subl .num .l {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+.tack-dialog .subl button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: none;
+    color: var(--muted);
+    font: 400 17px/1 system-ui;
+}
+
+.tack-dialog .subl button:hover {
+    background: #e5484d;
+    color: #fff;
+}
+
+.cap {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.tack-dialog menu {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+.tack-dialog menu span {
+    flex: 1;
+}
+
+.tack-dialog [value="cancel"] {
+    order: 1;
+}
+
+.tack-dialog [value="save"] {
+    order: 2;
+}

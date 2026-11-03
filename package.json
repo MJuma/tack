@@ -1,0 +1,23 @@
+{
+    "name": "tack",
+    "private": true,
+    "version": "0.3.2",
+    "description": "A blazing-fast Firefox new tab page: one grid of the links you pin",
+    "type": "module",
+    "packageManager": "pnpm@12.15.0",
+    "engines": {
+        "node": ">=22.12"
+    },
+    "scripts": {
+        "dev": "web-ext run --source-dir src",
+        "lint": "oxlint -c oxlintrc.json src scripts test && web-ext lint --source-dir src --self-hosted",
+        "test": "node --test",
+        "measure": "node scripts/measure.mjs",
+        "build": "web-ext build --source-dir src --overwrite-dest",
+        "sign": "WEB_EXT_API_KEY=${WEB_EXT_API_KEY:-$(security find-generic-password -s amo-jwt-issuer -w)} WEB_EXT_API_SECRET=${WEB_EXT_API_SECRET:-$(security find-generic-password -s amo-jwt-secret -w)} web-ext sign --source-dir src --channel unlisted"
+    },
+    "devDependencies": {
+        "oxlint": "1.89.0",
+        "web-ext": "10.8.0"
+    }
+}

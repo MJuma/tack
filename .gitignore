@@ -1,0 +1,7 @@
+node_modules
+web-ext-artifacts
+.amo-upload-uuid
+.measure
+.env
+dist
+brag-output

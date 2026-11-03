@@ -1,0 +1,747 @@
+{
+    // Default oxlint configuration — Framework-agnostic rules
+    //
+    // This is the base config applied to all projects. It contains comprehensive
+    // rules from the correctness, suspicious, and perf categories.
+    //
+    // All rules are set to "deny" severity — warnings are usually ignored so we
+    // don't use them.
+    //
+    // Consumer configs should extend this file:
+    //   { "extends": ["../../configs/oxlintrc.json"] }
+
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "plugins": [
+        "import",
+        "oxc",
+        "promise",
+        "typescript",
+        "unicorn",
+    ],
+    "rules": {
+        // ═══════════════════════════════════════════════════════════════
+        // ESLINT RULES
+        // ═══════════════════════════════════════════════════════════════
+
+        // ── ESLint Correctness ─────────────────────────────────────────
+
+        // Require super() calls in constructors of derived classes.
+        // Missing super() in a derived class constructor causes a runtime error.
+        "constructor-super": "deny",
+
+        // Require the use of === and !== instead of == and !=.
+        // Loose equality coercion is a common source of subtle bugs. Strict equality makes comparisons predictable.
+        "eqeqeq": "deny",
+
+        // Enforce for loop update clause moving the counter in the right direction.
+        // A for loop that counts the wrong direction will run forever or not at all.
+        "for-direction": "deny",
+
+        // Disallow using an async function as a Promise executor.
+        // Async executors are a common source of hard-to-debug errors because rejections may be swallowed.
+        "no-async-promise-executor": "deny",
+
+        // Disallow use of arguments.caller and arguments.callee.
+        // These APIs are deprecated, non-standard, and prevent JS engine optimizations.
+        "no-caller": "deny",
+
+        // Disallow reassigning class declarations.
+        // Reassigning a class is almost always a mistake and makes code confusing.
+        "no-class-assign": "deny",
+
+        // Disallow comparing against -0.
+        // Comparing against -0 does not work as expected; use Object.is() instead.
+        "no-compare-neg-zero": "deny",
+
+        // Disallow assignment operators in conditional expressions.
+        // Assignment in conditions is usually a typo (= instead of ==).
+        "no-cond-assign": "deny",
+
+        // Disallow reassigning const variables.
+        // Reassigning a const throws a runtime error; catch it at lint time.
+        "no-const-assign": "deny",
+
+        // Disallow expressions where the operation doesn't affect the value.
+        // Catches bugs like "a" + {} or a ?? "default" || "fallback".
+        "no-constant-binary-expression": "deny",
+
+        // Disallow constant expressions in conditions.
+        // A constant condition (like if (true)) is usually a mistake or debugging leftover.
+        "no-constant-condition": "deny",
+
+        // Disallow control characters in regular expressions.
+        // Control characters in regex are rarely intentional and often indicate a mistake.
+        "no-control-regex": "deny",
+
+        // Disallow debugger statements.
+        // Debugger statements must not be committed; they halt execution in production.
+        "no-debugger": "deny",
+
+        // Disallow deleting variables.
+        // Deleting variables has no effect in strict mode and is likely a mistake.
+        "no-delete-var": "deny",
+
+        // Disallow duplicate class members.
+        // Duplicate members silently overwrite each other, hiding bugs.
+        "no-dupe-class-members": "deny",
+
+        // Disallow duplicate conditions in if-else-if chains.
+        // Duplicate conditions mean some branches are unreachable.
+        "no-dupe-else-if": "deny",
+
+        // Disallow duplicate keys in object literals.
+        // Duplicate keys silently overwrite each other, hiding bugs.
+        "no-dupe-keys": "deny",
+
+        // Disallow duplicate case labels in switch statements.
+        // Duplicate case labels mean some cases are unreachable.
+        "no-duplicate-case": "deny",
+
+        // Disallow empty character classes in regular expressions.
+        // Empty character classes [] never match anything; this is usually a mistake.
+        "no-empty-character-class": "deny",
+
+        // Disallow empty destructuring patterns.
+        // Empty patterns like const {} = foo do nothing and are likely a mistake.
+        "no-empty-pattern": "deny",
+
+        // Disallow empty static blocks.
+        // Empty static blocks are useless and likely indicate incomplete code.
+        "no-empty-static-block": "deny",
+
+        // Disallow the use of eval().
+        // eval executes arbitrary code, creating security vulnerabilities and making static analysis impossible.
+        "no-eval": "deny",
+
+        // Disallow reassigning exceptions in catch clauses.
+        // Reassigning the exception loses the original error information.
+        "no-ex-assign": "deny",
+
+        // Disallow unnecessary boolean casts.
+        // Double negation !! or Boolean() in boolean contexts is redundant.
+        "no-extra-boolean-cast": "deny",
+
+        // Disallow reassigning function declarations.
+        // Reassigning a function declaration is confusing and almost always a mistake.
+        "no-func-assign": "deny",
+
+        // Disallow assignments to native or read-only global variables.
+        // Overwriting globals like window or undefined causes hard-to-debug issues.
+        "no-global-assign": "deny",
+
+        // Disallow assigning to imported bindings.
+        // Imported bindings are read-only; assignment throws at runtime.
+        "no-import-assign": "deny",
+
+        // Disallow invalid regular expression strings.
+        // Invalid regex throws at runtime; catch it at lint time.
+        "no-invalid-regexp": "deny",
+
+        // Disallow irregular whitespace characters.
+        // Irregular whitespace can break code and is hard to spot visually.
+        "no-irregular-whitespace": "deny",
+
+        // Disallow number literals that lose precision.
+        // Numbers like 9007199254740993 cannot be represented exactly in JS.
+        "no-loss-of-precision": "deny",
+
+        // Disallow new operators with global non-constructor functions.
+        // new Symbol() and new BigInt() throw; use them as functions instead.
+        "no-new-native-nonconstructor": "deny",
+
+        // Disallow \8 and \9 escape sequences in strings.
+        // These escape sequences are deprecated and confusing.
+        "no-nonoctal-decimal-escape": "deny",
+
+        // Disallow calling global objects as functions.
+        // Math(), JSON(), etc. are not functions and will throw.
+        "no-obj-calls": "deny",
+
+        // Disallow assignments where both sides are exactly the same.
+        // Self-assignment has no effect and is usually a typo.
+        "no-self-assign": "deny",
+
+        // Disallow returning a value from a setter.
+        // Setter return values are ignored; returning something is likely a mistake.
+        "no-setter-return": "deny",
+
+        // Disallow shadowing restricted names like undefined, NaN, etc.
+        // Shadowing these names makes code confusing and error-prone.
+        "no-shadow-restricted-names": "deny",
+
+        // Disallow sparse arrays (arrays with empty slots).
+        // Sparse arrays like [1,,3] are confusing and often unintentional.
+        "no-sparse-arrays": "deny",
+
+        // Disallow this/super before calling super() in constructors.
+        // Using this before super() throws a ReferenceError.
+        "no-this-before-super": "deny",
+
+        // Disallow variable declarations without assignment that are never assigned.
+        // Unassigned variables that are never assigned are dead code.
+        "no-unassigned-vars": "deny",
+
+        // Disallow control flow statements in finally blocks.
+        // Control flow in finally blocks can swallow errors or prevent returns.
+        "no-unsafe-finally": "deny",
+
+        // Disallow negating the left operand of relational operators.
+        // !a in b is confusing; use !(a in b) for clarity.
+        "no-unsafe-negation": "deny",
+
+        // Disallow use of optional chaining in contexts where undefined is not allowed.
+        // (obj?.foo)() will throw if obj is undefined; this catches such patterns.
+        "no-unsafe-optional-chaining": "deny",
+
+        // Disallow unused expressions.
+        // An expression that does nothing is likely a mistake or dead code.
+        "no-unused-expressions": "deny",
+
+        // Disallow unused labels.
+        // Unused labels are dead code and should be removed.
+        "no-unused-labels": "deny",
+
+        // Disallow unused private class members.
+        // Unused private members are dead code that can be safely removed.
+        "no-unused-private-class-members": "deny",
+
+        // Disallow unused variables.
+        // Unused variables add noise and may indicate incomplete refactors.
+        "no-unused-vars": "deny",
+
+        // Disallow useless backreferences in regular expressions.
+        // Backreferences that always match empty string are likely mistakes.
+        "no-useless-backreference": "deny",
+
+        // Disallow unnecessary catch clauses.
+        // catch(e) { throw e } is pointless; just remove the try-catch.
+        "no-useless-catch": "deny",
+
+        // Disallow unnecessary escape characters.
+        // Unnecessary escapes add noise and may indicate misunderstanding of regex/strings.
+        "no-useless-escape": "deny",
+
+        // Disallow renaming import, export, and destructured assignments to the same name.
+        // import { a as a } is redundant; just use import { a }.
+        "no-useless-rename": "deny",
+
+        // Disallow with statements.
+        // with statements are deprecated and make code hard to analyze.
+        "no-with": "deny",
+
+        // Require generator functions to contain yield.
+        // A generator without yield is likely a mistake; use a regular function instead.
+        "require-yield": "deny",
+
+        // Require use of isNaN() when checking for NaN.
+        // NaN !== NaN, so direct comparison fails; use isNaN() instead.
+        "use-isnan": "deny",
+
+        // Enforce comparing typeof expressions against valid strings.
+        // typeof returns a limited set of strings; comparing against invalid ones is always false.
+        "valid-typeof": "deny",
+
+        // ── ESLint Suspicious ──────────────────────────────────────────
+
+        // Enforce variables to be declared in their scope.
+        // var hoisting causes confusing behavior; keep variables in their intended scope.
+        "block-scoped-var": "deny",
+
+        // Disallow extending native objects.
+        // Extending Object.prototype etc. can break other code that assumes standard behavior.
+        "no-extend-native": "deny",
+
+        // Disallow unnecessary calls to .bind().
+        // Binding a function that doesn't use this is pointless.
+        "no-extra-bind": "deny",
+
+        // Disallow new operators outside of assignments or comparisons.
+        // new Foo() without using the result is likely a mistake.
+        "no-new": "deny",
+
+        // Disallow confusing multiline expressions.
+        // Certain line breaks can be interpreted as statement continuations unexpectedly.
+        "no-unexpected-multiline": "deny",
+
+        // Disallow ternary operators when simpler alternatives exist.
+        // x ? true : false should just be Boolean(x) or !!x.
+        "no-unneeded-ternary": "deny",
+
+        // Disallow unnecessary concatenation of strings.
+        // "a" + "b" should just be "ab".
+        "no-useless-concat": "deny",
+
+        // Disallow unnecessary constructors.
+        // Empty constructors or those that just call super() are unnecessary.
+        "no-useless-constructor": "deny",
+
+        // Require the caught error to be used in the catch block.
+        // Catching an error and not using it hides important debugging information.
+        "preserve-caught-error": "deny",
+
+        // Require the radix parameter in parseInt().
+        // Without radix, parseInt can interpret strings as octal in some engines.
+        "radix": "deny",
+
+        // ── ESLint Perf ────────────────────────────────────────────────
+
+        // Disallow unnecessary .call() and .apply().
+        // Using call/apply with the same this or spreading arguments is pointless overhead.
+        "no-useless-call": "deny",
+
+        // ── ESLint Restriction ─────────────────────────────────────────
+
+        // Require let or const instead of var.
+        // var has confusing function-scoping and hoisting behavior. let/const are block-scoped and safer.
+        "no-var": "deny",
+
+        // Disallow the use of console.* methods.
+        // console statements can leak sensitive information and should not be committed to production code.
+        "no-console": "deny",
+
+        // Restrict certain imports.
+        // See messages for preferred alternatives.
+        "no-restricted-imports": ["deny", {
+            "paths": [
+                {
+                    "name": "lodash",
+                    "message": "Please use native functions or global lodash instead. Ex: _.isEmpty()"
+                },
+                {
+                    "name": "lodash/*",
+                    "message": "Please use native functions or global lodash instead. Ex: _.isEmpty()"
+                }
+            ]
+        }],
+
+        // ── ESLint Style ───────────────────────────────────────────────
+
+        // Suggest using const for variables that are never reassigned.
+        // const communicates intent and prevents accidental reassignment.
+        "prefer-const": "deny",
+
+        // ═══════════════════════════════════════════════════════════════
+        // TYPESCRIPT RULES
+        // ═══════════════════════════════════════════════════════════════
+
+        // ── TypeScript Correctness (non-type-aware) ────────────────────
+
+        // Disallow duplicate enum member values.
+        // Duplicate values in enums are usually typos and cause unexpected behavior.
+        "typescript/no-duplicate-enum-values": "deny",
+
+        // Disallow the any type.
+        // any disables type checking and defeats the purpose of using TypeScript. Use unknown or a specific type instead.
+        "typescript/no-explicit-any": "deny",
+
+        // Disallow extra non-null assertions (!!).
+        // Multiple ! assertions are redundant and may indicate a misunderstanding.
+        "typescript/no-extra-non-null-assertion": "deny",
+
+        // Disallow new and constructor in interfaces/type aliases.
+        // Interfaces should use call signatures, not new/constructor.
+        "typescript/no-misused-new": "deny",
+
+        // Disallow non-null assertions after optional chains.
+        // obj?.foo! is contradictory — if it can be nullish, don't assert it's not.
+        "typescript/no-non-null-asserted-optional-chain": "deny",
+
+        // Disallow aliasing this.
+        // Use arrow functions instead of const self = this.
+        "typescript/no-this-alias": "deny",
+
+        // Disallow unnecessary parameter property assignments.
+        // Assignment is redundant when using parameter properties.
+        "typescript/no-unnecessary-parameter-property-assignment": "deny",
+
+        // Disallow unsafe declaration merging.
+        // Merging classes with interfaces can cause unexpected runtime behavior.
+        "typescript/no-unsafe-declaration-merging": "deny",
+
+        // Disallow empty export statements.
+        // export {} when there are other exports is redundant.
+        "typescript/no-useless-empty-export": "deny",
+
+        // Disallow String, Number, Boolean as types.
+        // Use primitive types (string, number, boolean) instead of wrapper objects.
+        "typescript/no-wrapper-object-types": "deny",
+
+        // Prefer as const over literal type assertions.
+        // as const is more idiomatic and safer than "foo" as "foo".
+        "typescript/prefer-as-const": "deny",
+
+        // Prefer namespace keyword over module keyword.
+        // module for namespaces is outdated; use namespace for clarity.
+        "typescript/prefer-namespace-keyword": "deny",
+
+        // Disallow triple-slash reference directives.
+        // Use ES6 imports instead of triple-slash references.
+        "typescript/triple-slash-reference": "deny",
+
+        // ── TypeScript Correctness (type-aware) ────────────────────────
+
+        // Disallow awaiting non-Promise values.
+        // Awaiting a non-Promise is likely a mistake.
+        "typescript/await-thenable": "deny",
+
+        // Disallow using delete on arrays.
+        // delete on arrays leaves holes; use splice instead.
+        "typescript/no-array-delete": "deny",
+
+        // Disallow calling .toString() on objects that don't override it.
+        // Default toString returns [object Object] which is rarely useful.
+        "typescript/no-base-to-string": "deny",
+
+        // Disallow duplicate constituents of union or intersection types.
+        // string | string is redundant.
+        "typescript/no-duplicate-type-constituents": "deny",
+
+        // Require Promises to be handled appropriately.
+        // Unhandled promises can silently fail. Always await or catch them.
+        "typescript/no-floating-promises": "deny",
+
+        // Disallow iterating over arrays with for...in.
+        // for-in iterates over indices as strings; use for-of instead.
+        "typescript/no-for-in-array": "deny",
+
+        // Disallow the use of eval()-like methods.
+        // setTimeout with strings acts like eval; pass functions instead.
+        "typescript/no-implied-eval": "deny",
+
+        // Disallow the void operator when the value is already undefined.
+        // void undefined is pointless.
+        "typescript/no-meaningless-void-operator": "deny",
+
+        // Disallow spreading non-iterable values in arrays or non-object values in objects.
+        // Spreading a non-iterable throws at runtime.
+        "typescript/no-misused-spread": "deny",
+
+        // Disallow redundant type constituents.
+        // string | any is just any; the string is redundant.
+        "typescript/no-redundant-type-constituents": "deny",
+
+        // Disallow unary minus on non-numeric types.
+        // -"string" produces NaN; likely a mistake.
+        "typescript/no-unsafe-unary-minus": "deny",
+
+        // Require Array.sort() to have a compare function.
+        // Default sort converts to strings; [1,10,2].sort() => [1,10,2].
+        "typescript/require-array-sort-compare": "deny",
+
+        // Disallow template literal placeholders of non-string types.
+        // Objects in templates produce [object Object].
+        "typescript/restrict-template-expressions": "deny",
+
+        // Disallow calling unbound methods.
+        // Passing obj.method loses this binding.
+        "typescript/unbound-method": "deny",
+
+        // ── TypeScript Suspicious ──────────────────────────────────────
+
+        // Disallow non-null assertions in confusing locations.
+        // a!.b vs a!b — the ! placement matters for readability.
+        "typescript/no-confusing-non-null-assertion": "deny",
+
+        // Disallow classes that only contain static members.
+        // Use a plain object or module instead of a class with only statics.
+        "typescript/no-extraneous-class": "deny",
+
+        // Disallow unnecessary constraints on generic types.
+        // T extends unknown is always true and redundant.
+        "typescript/no-unnecessary-type-constraint": "deny",
+
+        // Disallow unnecessary equality comparisons against booleans.
+        // x === true should just be x (type-aware).
+        "typescript/no-unnecessary-boolean-literal-compare": "deny",
+
+        // Disallow unnecessary template expressions.
+        // ${"foo"} should just be "foo" (type-aware).
+        "typescript/no-unnecessary-template-expression": "deny",
+
+        // Disallow type arguments that are equal to the default.
+        // Explicit defaults are redundant (type-aware).
+        "typescript/no-unnecessary-type-arguments": "deny",
+
+        // Disallow type assertions that do not change the type.
+        // x as string when x is already string is redundant (type-aware).
+        "typescript/no-unnecessary-type-assertion": "deny",
+
+        // Disallow comparing enum values with non-enum values.
+        // Comparing enums with raw values bypasses type safety (type-aware).
+        "typescript/no-unsafe-enum-comparison": "deny",
+
+        // ── TypeScript Pedantic (disable comment blocking) ─────────────
+
+        // Disallow @ts-ignore, @ts-nocheck, @ts-expect-error comments.
+        // These comments hide type errors; fix the underlying issue instead.
+        "typescript/ban-ts-comment": "deny",
+
+        // ── TypeScript Restriction ───────────────────────────────────────
+
+        // Disallow TypeScript namespaces.
+        // Namespaces are outdated; use ES6 modules (import/export) instead.
+        "typescript/no-namespace": ["deny", {
+            "allowDeclarations": true,
+            "allowDefinitionFiles": true
+        }],
+
+        // ── TypeScript Style ─────────────────────────────────────────────
+
+        // Prefer for-of loops over indexed for loops when the index is only used to access the array.
+        // for-of is more concise and less error-prone.
+        "typescript/prefer-for-of": "deny",
+
+        // ═══════════════════════════════════════════════════════════════
+        // OXC RULES (unique to oxlint)
+        // ═══════════════════════════════════════════════════════════════
+
+        // ── OXC Correctness ────────────────────────────────────────────
+
+        // Disallow calling array methods on the arguments object.
+        // arguments is array-like but not an array; methods like map() won't work.
+        "oxc/bad-array-method-on-arguments": "deny",
+
+        // Disallow comparing charAt() result with a string of length != 1.
+        // str.charAt(0) === "ab" is always false.
+        "oxc/bad-char-at-comparison": "deny",
+
+        // Disallow comparison chains that don't work as expected.
+        // a < b < c doesn't mean what you think; it compares booleans.
+        "oxc/bad-comparison-sequence": "deny",
+
+        // Disallow incorrect use of Math.min() and Math.max().
+        // Math.max(a, Math.max(b, c)) is redundant; just use Math.max(a, b, c).
+        "oxc/bad-min-max-func": "deny",
+
+        // Disallow comparing against object/array literals.
+        // x === {} is always false because objects are compared by reference.
+        "oxc/bad-object-literal-comparison": "deny",
+
+        // Disallow incorrect arguments to replaceAll().
+        // replaceAll with a regex without global flag throws.
+        "oxc/bad-replace-all-arg": "deny",
+
+        // Disallow comparisons where both sides are constants.
+        // 1 < 2 is always true; this is likely dead code or a mistake.
+        "oxc/const-comparisons": "deny",
+
+        // Disallow redundant double comparisons.
+        // a === b && a === b is redundant.
+        "oxc/double-comparisons": "deny",
+
+        // Disallow operations that always produce the same result.
+        // x * 0 is always 0; the operation erases the value of x.
+        "oxc/erasing-op": "deny",
+
+        // Disallow creating errors without throwing them.
+        // new Error() without throw does nothing.
+        "oxc/missing-throw": "deny",
+
+        // Disallow numeric arguments outside of valid ranges.
+        // parseInt(x, 37) throws because radix must be 2-36.
+        "oxc/number-arg-out-of-range": "deny",
+
+        // Disallow variables that are only used in recursive calls.
+        // A parameter only passed to recursive calls likely serves no purpose.
+        "oxc/only-used-in-recursion": "deny",
+
+        // Disallow passing a function reference where a call is expected.
+        // arr.filter(fn) should probably be arr.filter(x => fn(x)) or arr.filter(fn).
+        "oxc/uninvoked-array-callback": "deny",
+
+        // ── OXC Suspicious ─────────────────────────────────────────────
+
+        // Disallow approximate math constants.
+        // 3.14159 should be Math.PI for precision and clarity.
+        "oxc/approx-constant": "deny",
+
+        // Disallow assignment operators that appear to be typos.
+        // a =- b is likely meant to be a -= b.
+        "oxc/misrefactored-assign-op": "deny",
+
+        // Disallow async functions in places that don't handle their return.
+        // Async handlers in Express etc. need error handling wrappers.
+        "oxc/no-async-endpoint-handlers": "deny",
+
+        // Disallow this in exported functions.
+        // Exported functions may be called with wrong this binding.
+        "oxc/no-this-in-exported-function": "deny",
+
+        // ── OXC Restriction ─────────────────────────────────────────────
+
+        // Disallow const enum declarations.
+        // Const enums are incompatible with isolatedModules and bundlers
+        // because they are erased at compile time, leading to missing values.
+        "oxc/no-const-enum": "deny",
+
+        // ═══════════════════════════════════════════════════════════════
+        // UNICORN RULES
+        // ═══════════════════════════════════════════════════════════════
+
+        // ── Unicorn Correctness ────────────────────────────────────────
+
+        // Disallow awaiting in Promise method callbacks.
+        // Promise.all([await p1, await p2]) defeats the purpose of Promise.all.
+        "unicorn/no-await-in-promise-methods": "deny",
+
+        // Disallow empty files.
+        // Empty files are dead weight; remove them or add content.
+        "unicorn/no-empty-file": "deny",
+
+        // Disallow invalid options in fetch() calls.
+        // Invalid fetch options are silently ignored; catch them at lint time.
+        "unicorn/no-invalid-fetch-options": "deny",
+
+        // Disallow invalid removeEventListener() calls.
+        // Passing wrong args to removeEventListener silently fails to remove.
+        "unicorn/no-invalid-remove-event-listener": "deny",
+
+        // Disallow new Array().
+        // new Array(n) creates sparse arrays; use Array.from() instead.
+        "unicorn/no-new-array": "deny",
+
+        // Disallow using Promise methods with a single-element array.
+        // Promise.all([p]) should just be p or Promise.resolve(p).
+        "unicorn/no-single-promise-in-promise-methods": "deny",
+
+        // Disallow then property on objects.
+        // Objects with .then are treated as Promises, causing unexpected behavior.
+        "unicorn/no-thenable": "deny",
+
+        // Disallow awaiting non-Promise values in async functions.
+        // Awaiting a non-Promise is pointless overhead.
+        "unicorn/no-unnecessary-await": "deny",
+
+        // Disallow useless fallbacks in spreads.
+        // {...obj || {}} — the fallback is useless if obj is already an object.
+        "unicorn/no-useless-fallback-in-spread": "deny",
+
+        // Disallow useless length checks.
+        // arr.length && arr.forEach(...) — forEach handles empty arrays fine.
+        "unicorn/no-useless-length-check": "deny",
+
+        // Disallow unnecessary spreads.
+        // [...arr] when arr is already an array may be unnecessary.
+        "unicorn/no-useless-spread": "deny",
+
+        // Prefer Set#size over converting to array and checking length.
+        // [...set].length should be set.size.
+        "unicorn/prefer-set-size": "deny",
+
+        // Prefer String#startsWith()/endsWith() over regex or index checks.
+        // str.indexOf(x) === 0 should be str.startsWith(x).
+        "unicorn/prefer-string-starts-ends-with": "deny",
+
+        // ── Unicorn Suspicious ─────────────────────────────────────────
+
+        // Disallow recursive getters/setters that cause infinite loops.
+        // A getter that reads itself causes a stack overflow.
+        "unicorn/no-accessor-recursion": "deny",
+
+        // Disallow instanceof with built-in types.
+        // x instanceof Array fails across realms; use Array.isArray().
+        "unicorn/no-instanceof-builtins": "deny",
+
+        // Enforce functions are declared at the highest possible scope.
+        // Functions that don't use outer scope vars should be moved out for clarity.
+        "unicorn/consistent-function-scoping": "deny",
+
+        // ── Unicorn Perf ───────────────────────────────────────────────
+
+        // Prefer Array#find() over filter()[0].
+        // find() stops at first match; filter() processes entire array.
+        "unicorn/prefer-array-find": "deny",
+
+        // Prefer Array#flatMap() over map().flat().
+        // flatMap() is more efficient than chaining map() and flat().
+        "unicorn/prefer-array-flat-map": "deny",
+
+        // Prefer Set#has() over Array#includes() for repeated lookups.
+        // Set.has() is O(1); Array.includes() is O(n).
+        "unicorn/prefer-set-has": "deny",
+
+        // ═══════════════════════════════════════════════════════════════
+        // IMPORT RULES
+        // ═══════════════════════════════════════════════════════════════
+
+        // ── Import Correctness ─────────────────────────────────────────
+
+        // Ensure a default export is present when importing default.
+        // Importing a default that doesn't exist fails at runtime.
+        "import/default": "deny",
+
+        // Ensure imported namespaces contain dereferenced properties.
+        // Accessing non-existent exports from a namespace fails at runtime.
+        "import/namespace": "deny",
+
+        // ── Import Suspicious ──────────────────────────────────────────
+
+        // Disallow importing with absolute file paths.
+        // Absolute paths are not portable across machines.
+        "import/no-absolute-path": "deny",
+
+        // Disallow empty named import blocks.
+        // import {} from "x" does nothing and is likely a mistake.
+        "import/no-empty-named-blocks": "deny",
+
+        // Disallow using exported name as the name of the default export.
+        // This often indicates a mistake in what was intended to be imported.
+        "import/no-named-as-default": "deny",
+
+        // Disallow accessing default export as a property of the default export.
+        // Accessing named exports as default.foo is likely a mistake.
+        "import/no-named-as-default-member": "deny",
+
+        // Disallow a module from importing itself.
+        // A module importing itself is a mistake that causes infinite loops.
+        "import/no-self-import": "deny",
+
+        // ── Import Style ────────────────────────────────────────────────
+
+        // Enforce consistent use of type imports within a line.
+        // Mixing type imports and value imports in the same line can be confusing; choose one style
+        "import/consistent-type-specifier-style": "deny",
+
+        // ── Import Restriction ────────────────────────────────────────────
+
+        // Disallow namespace (wildcard *) imports.
+        // Named imports are explicit, tree-shakeable, and easier to trace.
+        "import/no-namespace": "deny",
+
+        // ═══════════════════════════════════════════════════════════════
+        // PROMISE RULES
+        // ═══════════════════════════════════════════════════════════════
+
+        // ── Promise Correctness ────────────────────────────────────────
+
+        // Disallow calling callbacks inside Promises.
+        // Mixing callbacks and Promises leads to confusing control flow.
+        "promise/no-callback-in-promise": "deny",
+
+        // Disallow calling new on Promise static methods.
+        // new Promise.resolve() throws; use Promise.resolve() directly.
+        "promise/no-new-statics": "deny",
+
+        // Ensure Promise methods are called with correct parameters.
+        // Calling Promise.resolve with wrong args leads to subtle bugs.
+        "promise/valid-params": "deny",
+
+        // ── Promise Suspicious ─────────────────────────────────────────
+
+        // Disallow creating Promises that resolve/reject multiple times.
+        // A Promise can only settle once; extra calls are silently ignored.
+        "promise/no-multiple-resolved": "deny",
+
+        // Disallow using Promises inside callbacks.
+        // Returning a Promise from a callback is likely unintentional.
+        "promise/no-promise-in-callback": "deny",
+
+        // ═══════════════════════════════════════════════════════════════
+        // DISABLE COMMENT BLOCKING
+        // ═══════════════════════════════════════════════════════════════
+
+        // Disallow eslint-disable comments that disable all rules.
+        // Blanket disable comments hide errors; disable specific rules instead.
+        "unicorn/no-abusive-eslint-disable": "deny",
+    }
+}

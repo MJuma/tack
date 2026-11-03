@@ -1,0 +1,18 @@
+{
+    // Tack lint entry point: the framework-agnostic base rules shared with traverse and dusk.
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "extends": ["./oxlintrc.base.json"],
+    "env": {
+        "browser": true,
+        "webextensions": true
+    },
+    "overrides": [
+        {
+            "files": ["scripts/**", "test/**"],
+            "env": {
+                "node": true
+            }
+        }
+    ],
+    "ignorePatterns": ["node_modules/**", "web-ext-artifacts/**"]
+}
