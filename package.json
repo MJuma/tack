@@ -9,7 +9,8 @@
         "node": ">=22.12"
     },
     "scripts": {
-        "dev": "web-ext run --source-dir src",
+        "dev": "web-ext run --source-dir src --firefox-profile ./.dev-profile --profile-create-if-missing --keep-profile-changes",
+        "dev:fresh": "web-ext run --source-dir src",
         "lint": "oxlint -c oxlintrc.json src scripts test && web-ext lint --source-dir src --self-hosted",
         "test": "node --test",
         "measure": "node scripts/measure.mjs",

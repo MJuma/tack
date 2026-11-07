@@ -55,10 +55,41 @@ Tack paints as fast as an empty extension page. The gap to Firefox's own page is
 
 ## Development
 
+### Setup
+
+The same on macOS and Linux. You need Firefox, [Node.js](https://nodejs.org/) 22 or newer, and [pnpm](https://pnpm.io/installation).
+
+1. Install pnpm, if you don't have it. Any recent version works: in this repo it switches itself to the version `package.json` pins.
+
+   ```bash
+   npm install -g pnpm --allow-scripts=pnpm
+   ```
+
+   If npm's global folder needs `sudo` (Node from a Linux package manager), add `--prefix ~/.local` and make sure `~/.local/bin` is on your `PATH`. Without `--allow-scripts`, newer npm skips pnpm's install script and leaves a slower `pnpm` that other programs can't start. Homebrew (`brew install pnpm`) or `corepack enable` (Node 22 and 24) work too.
+
+2. Install the dev tools (`web-ext`, `oxlint`):
+
+   ```bash
+   pnpm install
+   ```
+
+3. Run Tack from this checkout:
+
+   ```bash
+   pnpm dev
+   ```
+
+   This opens a separate Firefox window with Tack installed temporarily. It uses its own profile in `.dev-profile/` (git-ignored), so your everyday Firefox and its copy of Tack aren't touched, and the links you add are still there next time. Press ⌘T (Ctrl+T) to see Tack. Saving a file under `src/` reloads it, which closes open Tack tabs; the next new tab shows the change. Stop with Ctrl+C or by quitting that Firefox.
+
+- `pnpm dev:fresh` starts with an empty, throwaway profile instead. Delete `.dev-profile/` to reset the kept one.
+- `web-ext` finds Firefox in its usual place: `/Applications` on macOS, `firefox` on your `PATH` on Linux. To use another build, pass it through: `pnpm dev --firefox=nightly` (or `deved`, `flatpak:org.mozilla.firefox`, or a path). `pnpm measure` reads the `FIREFOX` environment variable instead.
+- Add `--browser-console` to `pnpm dev` to see Tack's errors.
+
 ### Commands
 
 ```bash
-pnpm dev                  # run Tack in a temporary Firefox profile, reloading on save
+pnpm dev                  # run Tack in a separate Firefox (profile kept in .dev-profile/), reloading on save
+pnpm dev:fresh            # the same with a throwaway profile
 pnpm test                 # node:test unit tests for the pure modules
 pnpm lint                 # oxlint + web-ext lint
 pnpm measure [runs]       # time Cmd+T vs Firefox's page and an empty extension (--headed to watch)

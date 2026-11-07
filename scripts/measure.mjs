@@ -10,6 +10,8 @@
 // It also saves screenshots to .measure/.
 //
 //   node scripts/measure.mjs [runs=30] [--headed]
+//
+// Set FIREFOX to the Firefox executable to test another build.
 import { spawn } from 'node:child_process';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import net from 'node:net';
@@ -22,7 +24,7 @@ import { itemsFromLinks } from '../src/lib/store.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, '.measure');
-const FIREFOX = process.env.FIREFOX ?? '/Applications/Firefox.app/Contents/MacOS/firefox';
+const FIREFOX = process.env.FIREFOX ?? (process.platform === 'darwin' ? '/Applications/Firefox.app/Contents/MacOS/firefox' : 'firefox');
 const RUNS = Number(process.argv.slice(2).find(arg => /^\d+$/.test(arg)) ?? 30);
 const HEADED = process.argv.includes('--headed');
 

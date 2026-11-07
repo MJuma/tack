@@ -36,7 +36,7 @@ Plain JavaScript (ES modules, JSDoc types), no framework, no bundler, no build s
 | `.github/workflows/` | `ci.yml` (pull requests), `release.yml` (push to `master`). |
 | `docs/` | README media: `demo.gif`, `social-preview.png`. |
 
-Local only (git-ignored): `web-ext-artifacts/` (built/signed packages), `.measure/` (timing results, screenshots), `dist/` (CI), `brag-output/` (launch video sources).
+Local only (git-ignored): `.dev-profile/` (`pnpm dev`'s Firefox profile), `web-ext-artifacts/` (built/signed packages), `.measure/` (timing results, screenshots), `dist/` (CI), `brag-output/` (launch video sources).
 
 ## Data
 
@@ -65,21 +65,24 @@ Local only (git-ignored): `web-ext-artifacts/` (built/signed packages), `.measur
 
 ## Working locally
 
-**Setup:** Node 22 (`.node-version`), pnpm (version pinned by `packageManager`). `pnpm install`. If your machine installs through a private npm mirror, `.pnpmfile.cjs` strips mirror tarball URLs from `pnpm-lock.yaml` so CI resolves against public npm; keep it.
+**Setup** (macOS and Linux; step by step in the README's *Development* section): Firefox, Node 22 or newer (`.node-version` pins CI's 22), pnpm. Any recent pnpm switches itself to the version pinned by `packageManager`. Install it with `npm install -g pnpm --allow-scripts=pnpm`: Node 25+ has no corepack, and npm 12 otherwise skips the script that installs pnpm 12's native binary, leaving a shebang-less shim that `spawn()` fails on with `ENOEXEC`. Then `pnpm install`. If your machine installs through a private npm mirror, `.pnpmfile.cjs` strips mirror tarball URLs from `pnpm-lock.yaml` so CI resolves against public npm; keep it.
 
 **Commands:**
 
 ```bash
 pnpm test            # node:test unit tests (fast, no browser)
 pnpm lint            # oxlint, then web-ext lint --self-hosted (expect 0 errors; 7 innerHTML + 1 Android warnings)
-pnpm dev             # web-ext run: Firefox with a throwaway profile and Tack installed temporarily; reloads on save
+pnpm dev             # web-ext run: a separate Firefox with Tack installed temporarily, profile kept in .dev-profile/; reloads on save
+pnpm dev:fresh       # the same with a throwaway profile
 pnpm build           # unsigned zip in web-ext-artifacts/ (sanity check of what ships)
 pnpm measure [runs]  # Cmd+T timing vs Firefox's page and an empty extension; add --headed to watch (~3 min for 30 runs)
 ```
 
 Run `pnpm test` and `pnpm lint` before every commit; CI runs the same plus a version-match check.
 
-**Manual testing:** `pnpm dev` opens a fresh profile with no links. Click ✎ to add boxes, or Import → JSON file. Temporary installs get site access automatically; real installs ask, and the editor shows *Allow icons* if it was declined. Don't load `src/` over the owner's installed copy (same add-on ID, same storage). Use `pnpm dev`'s separate profile.
+Extra arguments go to `web-ext run`, e.g. `pnpm dev --firefox=nightly` or `--browser-console`. `pnpm measure` uses `FIREFOX` (default: the macOS app, or `firefox` on `PATH` elsewhere). The `--firefox-profile` value must contain a `/` (`./.dev-profile`): without one, web-ext's runner passes it as a profile *name* (`-P`) and Firefox stalls at the profile picker.
+
+**Manual testing:** `pnpm dev` keeps its profile (and the links in it) in `.dev-profile/` between runs. That's the owner's own test data, so don't delete it. Use `pnpm dev:fresh` to start with no links. Click ✎ to add boxes, or Import → JSON file. Saving a file under `src/` reloads Tack, which closes its open tabs; open a new tab to see the change. Temporary installs get site access automatically; real installs ask, and the editor shows *Allow icons* if it was declined. Don't load `src/` over the owner's installed copy (same add-on ID, same storage). Use `pnpm dev`'s separate profile.
 
 **Browser tests (real Firefox, headless):** behavior that touches extension APIs (editor, background, icons, sync updates between tabs) is verified by driving Firefox over Marionette. Copy the minimal client and `launch()` from `scripts/measure.mjs`. Things that matter:
 
